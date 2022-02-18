@@ -15,34 +15,37 @@ class Smartphone
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups("smartphone:list")
+     * @Groups("smartphone:list", "smartphone:single")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups("smartphone:list")
+     * @Groups("smartphone:list", "smartphone:single")
      */
     private $designation;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups("smartphone:single")
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=20)
+     * @Groups("smartphone:single")
      */
     private $color;
 
     /**
      * @ORM\Column(type="float")
-     * @Groups("smartphone:list")
+     * @Groups("smartphone:list", "smartphone:single")
      */
     private $price;
 
     /**
      * @ORM\Column(type="date")
+     * @Groups("smartphone:single")
      */
     private $year;
 
