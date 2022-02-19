@@ -38,9 +38,9 @@ class ApiSmartphoneController extends AbstractController
     /**
      * @Route("/api/smartphone/{id}", name="api_post_smartphone_single", methods={"GET"})
      */
-    public function showProduct(Smartphone $smartphone, SmartphoneRepository $smartphoneRepository, SerializerInterface $serializer): Response
+    public function showProduct(int $id, SmartphoneRepository $smartphoneRepository, SerializerInterface $serializer): Response
     {
-        $smartphone = $smartphoneRepository->findBy(['id' => $smartphone]);
+        $smartphone = $smartphoneRepository->findBy(['id' => $id]);
 
         //$normalizers = [new ObjectNormalizer()];
         //$serializer = new Serializer($normalizers, []);
@@ -48,6 +48,10 @@ class ApiSmartphoneController extends AbstractController
         //$smartphonesNormalises = $normalizer->normalize($smartphones, null, ['groups' => 'smartphone:read']);
 
         $json = $serializer->serialize($smartphone, 'json', ['groups' => 'smartphone:single']);
+
+        if(! $smartphone) {
+            throw $this->createNotFoundException('Smartphone non trouvé');
+        }
         
         $response = new Response($json, 200, [
             "Content-Type' => 'application/json"
