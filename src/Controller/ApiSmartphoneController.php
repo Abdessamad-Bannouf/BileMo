@@ -50,7 +50,11 @@ class ApiSmartphoneController extends AbstractController
         $json = $serializer->serialize($smartphone, 'json', ['groups' => 'smartphone:single']);
 
         if(! $smartphone) {
-            throw $this->createNotFoundException('Smartphone non trouvé');
+            $response = new Response('Smartphone non trouvé', 404, [
+                "Content-Type' => 'application/json"
+            ]);
+
+            return $response;
         }
         
         $response = new Response($json, 200, [
