@@ -30,4 +30,33 @@ class ApiUserController extends AbstractController
         
         return $response;
     }
+
+    /**
+     * @Route("/api/user/{id}", name="api_post_user_single", methods={"GET"})
+     */
+    public function showClient(int $id, UserRepository $userRepository, SerializerInterface $serializer): Response
+    {
+        $user = $userRepository->findBy(['id' => $id]);
+
+        //$normalizers = [new ObjectNormalizer()];
+        //$serializer = new Serializer($normalizers, []);
+
+        //$smartphonesNormalises = $normalizer->normalize($smartphones, null, ['groups' => 'smartphone:read']);
+
+        $json = $serializer->serialize($user, 'json', ['groups' => 'user:single']);
+
+        if(! $user) {
+            $response = new Response('Utilisateur non trouvé', 404, [
+                "Content-Type' => 'application/json"
+            ]);
+
+            return $response;
+        }
+        
+        $response = new Response($json, 200, [
+            "Content-Type' => 'application/json"
+        ]);
+        
+        return $response;
+    }
 }
