@@ -20,7 +20,7 @@ class ApiUserController extends AbstractController
         //$normalizers = [new ObjectNormalizer()];
         //$serializer = new Serializer($normalizers, []);
 
-        //$usersNormalises = $normalizer->normalize($users, null, ['groups' => 'smartphone:read']);
+        //$usersNormalises = $normalizer->normalize($users, null, ['groups' => 'user:list']);
 
         $json = $serializer->serialize($users, 'json', ['groups' => 'user:list']);
         
@@ -41,7 +41,7 @@ class ApiUserController extends AbstractController
         //$normalizers = [new ObjectNormalizer()];
         //$serializer = new Serializer($normalizers, []);
 
-        //$smartphonesNormalises = $normalizer->normalize($smartphones, null, ['groups' => 'smartphone:read']);
+        //$usersNormalises = $normalizer->normalize($users, null, ['groups' => 'user:single']);
 
         $json = $serializer->serialize($user, 'json', ['groups' => 'user:single']);
 
