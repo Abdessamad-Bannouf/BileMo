@@ -24,7 +24,7 @@ class ApiSmartphoneController extends AbstractController
         //$normalizers = [new ObjectNormalizer()];
         //$serializer = new Serializer($normalizers, []);
 
-        //$smartphonesNormalises = $normalizer->normalize($smartphones, null, ['groups' => 'smartphone:read']);
+        //$smartphonesNormalises = $normalizer->normalize($smartphones, null, ['groups' => 'smartphone:list']);
 
         $json = $serializer->serialize($smartphones, 'json', ['groups' => 'smartphone:list']);
         
