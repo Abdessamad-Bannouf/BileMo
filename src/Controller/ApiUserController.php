@@ -32,7 +32,7 @@ class ApiUserController extends AbstractController
     }
 
     /**
-     * @Route("/api/user/{id}", name="api_post_user_single", methods={"GET"})
+     * @Route("/api/user/{id}", name="api_show_user", methods={"GET"})
      */
     public function showClient(int $id, UserRepository $userRepository, SerializerInterface $serializer): Response
     {
