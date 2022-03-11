@@ -18,22 +18,25 @@ class Shop
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"user:single"})
+     * @Groups({"shop:list"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=50)
+     * @Groups({"shop:list"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @Groups({"shop:list"})
      */
     private $url;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, inversedBy="shops", orphanRemoval=true, cascade={"persist"})
+     * @Groups({"shop:list"})
      */
     private $users;
 
