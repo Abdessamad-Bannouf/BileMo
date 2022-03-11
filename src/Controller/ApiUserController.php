@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 class ApiUserController extends AbstractController
 {
     /**
-     * @Route("/api/user", name="api_post_user", methods={"GET"})
+     * @Route("/api/user", name="api_index_user", methods={"GET"})
      */
     public function showAll(UserRepository $userRepository, SerializerInterface $serializer): Response
     {

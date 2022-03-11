@@ -15,7 +15,7 @@ use Symfony\Component\Serializer\SerializerInterface;
 class ApiSmartphoneController extends AbstractController
 {
     /**
-     * @Route("/api/smartphone", name="api_post_smartphone", methods={"GET"})
+     * @Route("/api/smartphone", name="api_index_smartphone", methods={"GET"})
      */
     public function showAll(SmartphoneRepository $smartphoneRepository, SerializerInterface $serializer): Response
     {
@@ -36,7 +36,7 @@ class ApiSmartphoneController extends AbstractController
     }
 
     /**
-     * @Route("/api/smartphone/{id}", name="api_post_smartphone_single", methods={"GET"})
+     * @Route("/api/smartphone/{id}", name="api_show_smartphone", methods={"GET"})
      */
     public function showProduct(int $id, SmartphoneRepository $smartphoneRepository, SerializerInterface $serializer): Response
     {
