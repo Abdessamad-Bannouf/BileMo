@@ -19,19 +19,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"user:single", "user:list"})
+     * @Groups({"user:single", "user:list", "shop:list"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"user:single", "user:list"})
+     * @Groups({"user:single", "user:list", "shop:list"})
      */
     private $email;
 
     /**
      * @ORM\Column(type="json")
-     * @Groups({"user:single", "user:list"})
+     * @Groups({"user:single", "user:list", "shop:list"})
      */
     private $roles = [];
 
@@ -43,19 +43,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups({"user:single", "user:list"})
+     * @Groups({"user:single", "user:list", "shop:list"})
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups({"user:single", "user:list"})
+     * @Groups({"user:single", "user:list", "shop:list"})
      */
     private $lastname;
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups({"user:single", "user:list"})
+     * @Groups({"user:single", "user:list", "shop:list"})
      */
     private $username;
 
