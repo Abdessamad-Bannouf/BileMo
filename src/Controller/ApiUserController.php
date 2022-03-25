@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\UserRepository;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -54,6 +55,38 @@ class ApiUserController extends AbstractController
         }
         
         $response = new Response($json, 200, [
+            "Content-Type' => 'application/json"
+        ]);
+        
+        return $response;
+    }
+
+    /**
+     * @Route("/api/user/{id}", name="api_delete_user", methods={"DELETE"})
+     */
+    public function deleteUser(int $id, ManagerRegistry $doctrine, UserRepository $userRepository, SerializerInterface $serializer): Response
+    {        
+        // Recherche un utilisateur uniquement sur son id
+        $user = $userRepository->findOneBy(['id' => $id]);
+
+        //Si l'utilisateur existe, on le supprime
+        if($user) {
+            $entityManager = $doctrine->getManager();
+            
+            $entityManager->remove($user);
+            $entityManager->flush();
+
+            $json = $serializer->serialize($user, 'json', ['groups' => 'user:single']);
+
+            $response = new Response($json, 200, [
+                "Content-Type' => 'application/json"
+            ]);
+
+            return $response;
+        }
+        
+        // Sinon on envoie une erreur 404
+        $response = new Response("Utilisateur non trouvé", 404, [
             "Content-Type' => 'application/json"
         ]);
         
