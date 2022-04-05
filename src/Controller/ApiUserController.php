@@ -2,12 +2,17 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
+use App\Form\UserType;
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class ApiUserController extends AbstractController
 {
@@ -90,6 +95,54 @@ class ApiUserController extends AbstractController
             "Content-Type' => 'application/json"
         ]);
         
+        return $response;
+    }
+
+    /**
+     * @Route("/api/user/add", name="api_add_user", methods={"POST"})
+     */
+    public function addUser(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManagerInterface, UserPasswordHasherInterface $passwordHasher, UserRepository $userRepository): Response
+    {
+        // On récupère le json envoyé au back 
+        $jsonPost = $request->getContent();
+
+        // On déserialise pour convertir le json avec l'entité User
+        $user = $serializer->deserialize($jsonPost, User::class, 'json', ['groups' => 'user:add']);
+
+        // On crée le form user
+        $form = $this->createForm(UserType::class, $user);  
+
+         // On récupère le password brut, on hash le password et on le set
+        $plaintextPassword = $user->getPassword(); 
+
+        $hashedPassword = $passwordHasher->hashPassword(
+            $user,
+            $plaintextPassword
+        );
+
+        $user->setPassword($hashedPassword);
+
+        // On recherche un utilisateur par mail (id unique)
+        $checkUser = $userRepository->findByEmail(['email' => $user->getEmail()]);
+
+        // Si l'on trouve un resultat, on renvoie un message disant que l'utilisateur existe 
+        // et on retourne une réponse 
+        if($checkUser){
+            $response = new Response("Mail déjà existant", 200, [
+                "Content-Type' => 'application/json"
+            ]);
+    
+            return $response;
+        }
+
+        // On persist l'utilisateur et on renvoie une réponse 201
+        $entityManagerInterface->persist($user);
+        $entityManagerInterface->flush();
+
+        $response = new Response($jsonPost, 201, [
+            "Content-Type' => 'application/json"
+        ]);
+
         return $response;
     }
 }

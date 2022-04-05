@@ -6,6 +6,7 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
@@ -19,43 +20,44 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"user:single", "user:list", "shop:list"})
+     * @Groups({"user:single", "user:list", "shop:list", "user:add"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"user:single", "user:list", "shop:list"})
+     * @Groups({"user:single", "user:list", "shop:list", "user:add"})
      */
     private $email;
 
     /**
      * @ORM\Column(type="json")
-     * @Groups({"user:single", "user:list", "shop:list"})
+     * @Groups({"user:single", "user:list", "shop:list", "user:add"})
      */
     private $roles = [];
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
+     * @Groups({"user:add"})
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups({"user:single", "user:list", "shop:list"})
+     * @Groups({"user:single", "user:list", "shop:list", "user:add"})
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups({"user:single", "user:list", "shop:list"})
+     * @Groups({"user:single", "user:list", "shop:list", "user:add"})
      */
     private $lastname;
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups({"user:single", "user:list", "shop:list"})
+     * @Groups({"user:single", "user:list", "shop:list", "user:add"})
      */
     private $username;
 
@@ -102,7 +104,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     public function getUsername(): string
     {
-        return (string) $this->email;
+        return $this->username;
     }
 
     /**
