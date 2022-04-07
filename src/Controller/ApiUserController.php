@@ -112,19 +112,9 @@ class ApiUserController extends AbstractController
         // On crée le form user
         $form = $this->createForm(UserType::class, $user);  
 
-         // On récupère le password brut, on hash le password et on le set
-        $plaintextPassword = $user->getPassword(); 
-
-        $hashedPassword = $passwordHasher->hashPassword(
-            $user,
-            $plaintextPassword
-        );
-
-        $user->setPassword($hashedPassword);
-
         // On recherche un utilisateur par mail (id unique)
         $checkUser = $userRepository->findByEmail(['email' => $user->getEmail()]);
-
+        
         // Si l'on trouve un resultat, on renvoie un message disant que l'utilisateur existe 
         // et on retourne une réponse 
         if($checkUser){
@@ -134,6 +124,16 @@ class ApiUserController extends AbstractController
     
             return $response;
         }
+
+         // On récupère le password brut, on hash le password et on le set
+        $plaintextPassword = $user->getPassword(); 
+
+        $hashedPassword = $passwordHasher->hashPassword(
+            $user,
+            $plaintextPassword
+        );
+
+        $user->setPassword($hashedPassword);
 
         // On persist l'utilisateur et on renvoie une réponse 201
         $entityManagerInterface->persist($user);
