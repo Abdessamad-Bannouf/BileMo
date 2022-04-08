@@ -109,9 +109,6 @@ class ApiUserController extends AbstractController
         // On déserialise pour convertir le json avec l'entité User
         $user = $serializer->deserialize($jsonPost, User::class, 'json', ['groups' => 'user:add']);
 
-        // On crée le form user
-        $form = $this->createForm(UserType::class, $user);  
-
         // On recherche un utilisateur par mail (id unique)
         $checkUser = $userRepository->findByEmail(['email' => $user->getEmail()]);
         
