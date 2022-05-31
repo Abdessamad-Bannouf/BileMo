@@ -6,13 +6,33 @@ use App\Repository\UserRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation as Serializer;
+use JMS\Serializer\Annotation\Type;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
+ * @Serializer\ExclusionPolicy("ALL")
+ * @Hateoas\Relation(
+ *     name = "self",
+ *     href = @Hateoas\Route(
+ *         "api_show_user",
+ *         parameters = { "id" = "expr(object.getId())" },
+ *         absolute = true
+ *     ),
+ *     exclusion = @Hateoas\Exclusion(groups={"user:single", "user:list"})
+ * )
+ *  @Hateoas\Relation(
+ *     name = "shops",
+ *     embedded = @Hateoas\Embedded(
+ *         "expr(object.getShops())",
+ *         exclusion = @Hateoas\Exclusion(groups={"user:list", "user:single", "shop:single"})
+ *     )
+ * )
+ *     
+ * )
  */
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
@@ -20,52 +40,66 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"user:single", "user:list", "shop:list", "user:add"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"user:single", "user:list", "shop:list", "shop:single", "user:delete"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
-     * @Groups({"user:single", "user:list", "shop:list", "user:add"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"user:single", "user:list", "shop:list", "user:delete", "shop:single"})
+     * @Type("string")
      */
     private $email;
 
     /**
      * @ORM\Column(type="json")
-     * @Groups({"user:single", "user:list", "shop:list", "user:add"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"user:single", "user:list", "shop:list", "user:delete", "shop:single"})
+     * @Type("array")
      */
     private $roles = [];
 
     /**
      * @var string The hashed password
      * @ORM\Column(type="string")
-     * @Groups({"user:add"})
+     * @Type("string")
+     * @Serializer\Expose
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups({"user:single", "user:list", "shop:list", "user:add"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"user:single", "user:list", "shop:list", "user:delete", "shop:single"})
+     * @Type("string")
      */
     private $firstname;
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups({"user:single", "user:list", "shop:list", "user:add"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"user:single", "user:list", "shop:list", "user:delete", "shop:single"})
+     * @Type("string")
      */
     private $lastname;
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups({"user:single", "user:list", "shop:list", "user:add"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"user:single", "user:list", "shop:list", "user:delete", "shop:single"})
+     * @Type("string")
      */
     private $username;
 
     /**
      * @ORM\ManyToMany(targetEntity=Shop::class, mappedBy="users", orphanRemoval=true, cascade={"persist"})
-     * @Groups({"user:single"})
+     * @Serializer\Groups({"user:single", "user:delete"})
+     * @Serializer\Expose
+     * @Type("ArrayCollection")
      */
-    private $shops;
+    public $shops;
 
     public function __construct()
     {
@@ -202,6 +236,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function addShop(Shop $shop): self
     {
+        
         if (!$this->shops->contains($shop)) {
             $this->shops[] = $shop;
             $shop->addUser($this);

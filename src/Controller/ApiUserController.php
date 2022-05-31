@@ -2,18 +2,21 @@
 
 namespace App\Controller;
 
+use App\Entity\Shop;
 use App\Entity\User;
 use App\Form\UserType;
+use App\Repository\ShopRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
+use JMS\Serializer\DeserializationContext;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerBuilder;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class ApiUserController extends AbstractController
@@ -25,13 +28,8 @@ class ApiUserController extends AbstractController
     {
         $users = $userRepository->findAll();
 
-        //$normalizers = [new ObjectNormalizer()];
-        //$serializer = new Serializer($normalizers, []);
+        $json = $serializer->serialize($users, 'json', SerializationContext::create()->setGroups(array('user:list')));
 
-        //$usersNormalises = $normalizer->normalize($users, null, ['groups' => 'user:list']);
-
-        $json = $serializer->serialize($users, 'json', ['groups' => 'user:list']);
-        
         $response = new Response($json, 200, [
             "Content-Type' => 'application/json"
         ]);
@@ -45,13 +43,8 @@ class ApiUserController extends AbstractController
     public function showClient(int $id, UserRepository $userRepository, SerializerInterface $serializer): Response
     {
         $user = $userRepository->findBy(['id' => $id]);
-
-        //$normalizers = [new ObjectNormalizer()];
-        //$serializer = new Serializer($normalizers, []);
-
-        //$usersNormalises = $normalizer->normalize($users, null, ['groups' => 'user:single']);
-
-        $json = $serializer->serialize($user, 'json', ['groups' => 'user:single']);
+        
+        $json = $serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('user:single')));
 
         if(! $user) {
             $response = new Response('Utilisateur non trouvé', 404, [
@@ -78,12 +71,13 @@ class ApiUserController extends AbstractController
 
         //Si l'utilisateur existe, on le supprime
         if($user) {
+            $json = $serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('user:delete')));
             $entityManager = $doctrine->getManager();
             
             $entityManager->remove($user);
             $entityManager->flush();
 
-            $json = $serializer->serialize($user, 'json', ['groups' => 'user:single']);
+            //$json = $serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('user:single')));
 
             $response = new Response($json, 200, [
                 "Content-Type' => 'application/json"
@@ -101,15 +95,17 @@ class ApiUserController extends AbstractController
     }
 
     /**
-     * @Route("/api/user/add", name="api_add_user", methods={"POST"})
+     * @Route("/api/user", name="api_add_user", methods={"POST"})
      */
-    public function addUser(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManagerInterface, UserPasswordHasherInterface $passwordHasher, UserRepository $userRepository): Response
+    public function addUser(Request $request, SerializerInterface $serializer, ShopRepository $shopRepository, EntityManagerInterface $entityManagerInterface, UserPasswordHasherInterface $passwordHasher, UserRepository $userRepository): Response
     {
         // On récupère le json envoyé au back 
         $jsonPost = $request->getContent();
-
+        //$jsonPost = (array) json_decode($jsonPost);
+        
         // On déserialise pour convertir le json avec l'entité User
-        $user = $serializer->deserialize($jsonPost, User::class, 'json', ['groups' => 'user:add']);
+        $serializer = SerializerBuilder::create()->build();
+        $user = $serializer->deserialize($jsonPost, User::class, 'json');
 
         // On recherche un utilisateur par mail (id unique)
         $checkUser = $userRepository->findByEmail(['email' => $user->getEmail()]);
@@ -131,14 +127,24 @@ class ApiUserController extends AbstractController
             $user,
             $plaintextPassword
         );
-
         $user->setPassword($hashedPassword);
-
+        
+        // On boucle sur les shops, on fait une recherche par id
+        // On ajoute chaque shop que l'utilisateur a ajouté (ManytoMany)
+        // On unset le tableau qui contient la collection de shop de l'objet user pour éviter une erreur au niveau de la persistance
+        for($i=0; $i<count($user->getShops()); $i++) {
+            $shops = $shopRepository->findOneBy(['id' => $user->getShops()[$i]]);
+            $user->addShop($shops);
+            unset($user->shops[$i]);
+        }
+        
         // On persist l'utilisateur et on renvoie une réponse 201
         $entityManagerInterface->persist($user);
         $entityManagerInterface->flush();
 
-        $response = new Response($jsonPost, 201, [
+        $json = $serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('user:single')));
+
+        $response = new Response($json, 201, [
             "Content-Type' => 'application/json"
         ]);
 

@@ -4,13 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Smartphone;
 use App\Repository\SmartphoneRepository;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
-use Symfony\Component\Serializer\Serializer;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class ApiSmartphoneController extends AbstractController
 {
@@ -21,13 +19,8 @@ class ApiSmartphoneController extends AbstractController
     {
         $smartphones = $smartphoneRepository->findAll();
 
-        //$normalizers = [new ObjectNormalizer()];
-        //$serializer = new Serializer($normalizers, []);
+        $json = $serializer->serialize($smartphones, 'json', SerializationContext::create());
 
-        //$smartphonesNormalises = $normalizer->normalize($smartphones, null, ['groups' => 'smartphone:list']);
-
-        $json = $serializer->serialize($smartphones, 'json', ['groups' => 'smartphone:list']);
-        
         $response = new Response($json, 200, [
             "Content-Type' => 'application/json"
         ]);
@@ -42,12 +35,7 @@ class ApiSmartphoneController extends AbstractController
     {
         $smartphone = $smartphoneRepository->findBy(['id' => $id]);
 
-        //$normalizers = [new ObjectNormalizer()];
-        //$serializer = new Serializer($normalizers, []);
-
-        //$smartphonesNormalises = $normalizer->normalize($smartphones, null, ['groups' => 'smartphone:read']);
-
-        $json = $serializer->serialize($smartphone, 'json', ['groups' => 'smartphone:single']);
+        $json = $serializer->serialize($smartphone, 'json', SerializationContext::create());
 
         if(! $smartphone) {
             $response = new Response('Smartphone non trouvé', 404, [

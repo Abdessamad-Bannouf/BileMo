@@ -6,11 +6,19 @@ use App\Repository\ShopRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
-
+use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity(repositoryClass=ShopRepository::class)
+ * @Serializer\ExclusionPolicy("ALL")
+ * @Hateoas\Relation(
+ *     name="users",
+ *     embedded = @Hateoas\Embedded(
+ *         "expr(object.getUsers())",
+ *         exclusion = @Hateoas\Exclusion(groups={"shop:list"})
+ *     )
+ * )
  */
 class Shop
 {
@@ -18,25 +26,29 @@ class Shop
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups({"shop:list"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"shop:list", "shop:single", "user:single", "user:list"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups({"shop:list"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"shop:list", "shop:single", "user:single", "user:list"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"shop:list"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"shop:list", "shop:single", "user:single", "user:list"})
      */
     private $url;
 
     /**
      * @ORM\ManyToMany(targetEntity=User::class, inversedBy="shops", orphanRemoval=true, cascade={"persist"})
-     * @Groups({"shop:list"})
+     * @Serializer\Expose
+     * @Serializer\Groups({"shop:list"})
      */
     private $users;
 
