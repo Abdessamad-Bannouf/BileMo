@@ -98,6 +98,26 @@
     "fzaninotto/faker": {
         "version": "v1.9.2"
     },
+    "jms/metadata": {
+        "version": "2.6.1"
+    },
+    "jms/serializer": {
+        "version": "3.17.1"
+    },
+    "jms/serializer-bundle": {
+        "version": "4.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "3.0",
+            "ref": "384cec52df45f3bfd46a09930d6960a58872b268"
+        },
+        "files": [
+            "./config/packages/dev/jms_serializer.yaml",
+            "./config/packages/jms_serializer.yaml",
+            "./config/packages/prod/jms_serializer.yaml"
+        ]
+    },
     "laminas/laminas-code": {
         "version": "3.4.1"
     },
@@ -205,6 +225,9 @@
     },
     "symfony/event-dispatcher-contracts": {
         "version": "v2.5.0"
+    },
+    "symfony/expression-language": {
+        "version": "v5.4.8"
     },
     "symfony/filesystem": {
         "version": "v5.4.3"
@@ -355,6 +378,22 @@
     "symfony/translation-contracts": {
         "version": "v2.5.0"
     },
+    "symfony/twig-bridge": {
+        "version": "v5.4.8"
+    },
+    "symfony/twig-bundle": {
+        "version": "5.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.4",
+            "ref": "bb2178c57eee79e6be0b297aa96fc0c0def81387"
+        },
+        "files": [
+            "./config/packages/twig.yaml",
+            "./templates/base.html.twig"
+        ]
+    },
     "symfony/validator": {
         "version": "5.4",
         "recipe": {
@@ -373,10 +412,41 @@
     "symfony/var-exporter": {
         "version": "v5.4.3"
     },
+    "symfony/web-profiler-bundle": {
+        "version": "5.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "main",
+            "version": "5.3",
+            "ref": "24bbc3d84ef2f427f82104f766014e799eefcc3e"
+        },
+        "files": [
+            "./config/packages/web_profiler.yaml",
+            "./config/routes/web_profiler.yaml"
+        ]
+    },
     "symfony/yaml": {
         "version": "v5.4.3"
     },
+    "twig/twig": {
+        "version": "v3.3.10"
+    },
     "webmozart/assert": {
         "version": "1.10.0"
+    },
+    "willdurand/hateoas": {
+        "version": "3.8.0"
+    },
+    "willdurand/hateoas-bundle": {
+        "version": "2.4",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "main",
+            "version": "2.0",
+            "ref": "34df072c6edaa61ae19afb2f3a239f272fecab87"
+        },
+        "files": [
+            "./config/packages/bazinga_hateoas.yaml"
+        ]
     }
 }

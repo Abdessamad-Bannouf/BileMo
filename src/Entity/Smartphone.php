@@ -4,10 +4,21 @@ namespace App\Entity;
 
 use App\Repository\SmartphoneRepository;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Hateoas\Configuration\Annotation as Hateoas;
+use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\Entity(repositoryClass=SmartphoneRepository::class)
+ * @Serializer\ExclusionPolicy("ALL")
+ * @Hateoas\Relation(
+ *      "self",
+ *      href = @Hateoas\Route(
+ *          "api_show_smartphone",
+ *          parameters = {
+ *              "id" = "expr(object.getId())"
+ *          }
+ *      )
+ * )
  */
 class Smartphone
 {
@@ -15,37 +26,43 @@ class Smartphone
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
-     * @Groups("smartphone:list", "smartphone:single")
+     * @Serializer\Expose
+     * @Serializer\Groups({"smartphone:list", "smartphone:single"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=50)
-     * @Groups("smartphone:list", "smartphone:single")
+     * @Serializer\Expose
+     * @Serializer\Groups({"smartphone:list", "smartphone:single"})
      */
     private $designation;
 
     /**
      * @ORM\Column(type="text")
-     * @Groups("smartphone:single")
+     * @Serializer\Expose
+     * @Serializer\Groups({"smartphone:single"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="string", length=20)
-     * @Groups("smartphone:single")
+     * @Serializer\Expose
+     * @Serializer\Groups({"smartphone:single"})
      */
     private $color;
 
     /**
      * @ORM\Column(type="float")
-     * @Groups("smartphone:list", "smartphone:single")
+     * @Serializer\Expose
+     * @Serializer\Groups({"smartphone:list", "smartphone:single"})
      */
     private $price;
 
     /**
      * @ORM\Column(type="date")
-     * @Groups("smartphone:single")
+     * @Serializer\Expose
+     * @Serializer\Groups({"smartphone:single"})
      */
     private $year;
 

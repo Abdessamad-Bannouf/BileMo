@@ -4,10 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Shop;
 use App\Repository\ShopRepository;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
 
 class ApiShopController extends AbstractController
 {
@@ -16,19 +17,9 @@ class ApiShopController extends AbstractController
      */
     public function showUsersByShop(Shop $shop, ShopRepository $shopRepository, SerializerInterface $serializer): Response
     {
+        $users = $shop->getUsers();
 
-        // todo : Récupérer les utilisateurs par shop
-            // Solution 1 : Passer par une méthode custom du Query Builder et faire une jointure => En cours
-
-        //$shop = $shopRepository->getUsersByShop($shop);
-        $shop = $shop->getUsers();
-
-        //$normalizers = [new ObjectNormalizer()];
-        //$serializer = new Serializer($normalizers, []);
-
-        //$usersNormalises = $normalizer->normalize($shop, null, ['groups' => 'shop:list']);
-
-        $json = $serializer->serialize($shop, 'json', ['groups' => 'shop:list']);
+        $json = $serializer->serialize($users, 'json', SerializationContext::create()->setGroups(array('shop:single')));
 
         $response = new Response($json, 200, [
             "Content-Type' => 'application/json"
