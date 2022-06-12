@@ -100,12 +100,28 @@ class ApiUserController extends AbstractController
     public function addUser(Request $request, SerializerInterface $serializer, ShopRepository $shopRepository, EntityManagerInterface $entityManagerInterface, UserPasswordHasherInterface $passwordHasher, UserRepository $userRepository): Response
     {
         // On récupère le json envoyé au back 
-        $jsonPost = $request->getContent();
-        //$jsonPost = (array) json_decode($jsonPost);
+        $data = json_decode($request->getContent(), true);
+        $user = new User();
         
-        // On déserialise pour convertir le json avec l'entité User
-        $serializer = SerializerBuilder::create()->build();
-        $user = $serializer->deserialize($jsonPost, User::class, 'json');
+        $form = $this->createForm(UserType::class, $user);
+        $form->submit($data);
+
+        // On boucle sur les shops, on fait une recherche par id
+        // On ajoute chaque shop que l'utilisateur a ajouté (ManytoMany)
+        for($i=0; $i<count($user->getShops()); $i++) {
+            $shops = $shopRepository->findOneBy(['id' => $user->getShops()[$i]->getId()]);
+            $user->addShop($shops);
+        }
+
+        // On récupère le password brut, on hash le password et on le set
+        $plaintextPassword = $user->getPassword(); 
+
+        $hashedPassword = $passwordHasher->hashPassword(
+            $user,
+            $plaintextPassword
+        );
+        
+        $user->setPassword($hashedPassword);
 
         // On recherche un utilisateur par mail (id unique)
         $checkUser = $userRepository->findByEmail(['email' => $user->getEmail()]);
@@ -120,25 +136,7 @@ class ApiUserController extends AbstractController
             return $response;
         }
 
-         // On récupère le password brut, on hash le password et on le set
-        $plaintextPassword = $user->getPassword(); 
-
-        $hashedPassword = $passwordHasher->hashPassword(
-            $user,
-            $plaintextPassword
-        );
-        $user->setPassword($hashedPassword);
-        
-        // On boucle sur les shops, on fait une recherche par id
-        // On ajoute chaque shop que l'utilisateur a ajouté (ManytoMany)
-        // On unset le tableau qui contient la collection de shop de l'objet user pour éviter une erreur au niveau de la persistance
-        for($i=0; $i<count($user->getShops()); $i++) {
-            $shops = $shopRepository->findOneBy(['id' => $user->getShops()[$i]]);
-            $user->addShop($shops);
-            unset($user->shops[$i]);
-        }
-        
-        // On persist l'utilisateur et on renvoie une réponse 201
+        // On persist l'user
         $entityManagerInterface->persist($user);
         $entityManagerInterface->flush();
 
