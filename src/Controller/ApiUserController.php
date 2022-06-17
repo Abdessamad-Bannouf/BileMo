@@ -13,6 +13,8 @@ use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerBuilder;
 use JMS\Serializer\SerializerInterface;
+use Pagerfanta\Adapter\ArrayAdapter;
+use Pagerfanta\Pagerfanta;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -24,11 +26,33 @@ class ApiUserController extends AbstractController
     /**
      * @Route("/api/user", name="api_index_user", methods={"GET"})
      */
-    public function showAll(UserRepository $userRepository, SerializerInterface $serializer): Response
+    public function showAll(Request $request, UserRepository $userRepository, SerializerInterface $serializer): Response
     {
         $users = $userRepository->findAll();
 
-        $json = $serializer->serialize($users, 'json', SerializationContext::create()->setGroups(array('user:list')));
+        $adapter = new ArrayAdapter($users);
+        $pagerfanta = new Pagerfanta($adapter);
+
+        // Get the actual page in url (default: 1)
+        $actualPage = $request->query->get('page') ? $request->query->get('page'): 1;
+
+        $limit = 5;
+
+        // Check if the actual page is superior to users count
+        if($limit * $actualPage > count($users)) {
+            $response = new Response('Paramètres de pages incorrect', 404, [
+                "Content-Type' => 'application/json"
+            ]);
+
+            return $response;
+        }
+
+        $pagerfanta->setMaxPerPage($limit); // 5 items per page
+        $pagerfanta->setCurrentPage($actualPage); // 1 by default
+
+        $currentPageResults = $pagerfanta->getCurrentPageResults();
+
+        $json = $serializer->serialize($currentPageResults, 'json', SerializationContext::create()->setGroups(array('user:list')));
 
         $response = new Response($json, 200, [
             "Content-Type' => 'application/json"
