@@ -106,13 +106,6 @@ class ApiUserController extends AbstractController
         $form = $this->createForm(UserType::class, $user);
         $form->submit($data);
 
-        // On boucle sur les shops, on fait une recherche par id
-        // On ajoute chaque shop que l'utilisateur a ajouté (ManytoMany)
-        for($i=0; $i<count($user->getShops()); $i++) {
-            $shops = $shopRepository->findOneBy(['id' => $user->getShops()[$i]->getId()]);
-            $user->addShop($shops);
-        }
-
         // On récupère le password brut, on hash le password et on le set
         $plaintextPassword = $user->getPassword(); 
 
