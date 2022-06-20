@@ -44,7 +44,7 @@ class ApiSmartphoneController extends AbstractController
 
         $currentPageResults = $pagerfanta->getCurrentPageResults();
 
-        $json = $serializer->serialize($currentPageResults, 'json', SerializationContext::create());
+        $json = $serializer->serialize($currentPageResults, 'json', SerializationContext::create()->setGroups(array('smartphone:list')));
 
         $response = new Response($json, 200, [
             "Content-Type' => 'application/json"
@@ -60,7 +60,7 @@ class ApiSmartphoneController extends AbstractController
     {
         $smartphone = $smartphoneRepository->findBy(['id' => $id]);
 
-        $json = $serializer->serialize($smartphone, 'json', SerializationContext::create());
+        $json = $serializer->serialize($smartphone, 'json', SerializationContext::create()->setGroups(array('smartphone:single')));
 
         if(! $smartphone) {
             $response = new Response('Smartphone non trouvé', 404, [
