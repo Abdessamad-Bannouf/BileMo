@@ -13,6 +13,9 @@ use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerBuilder;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,6 +28,14 @@ class ApiUserController extends AbstractController
 {
     /**
      * @Route("/api/user", name="api_index_user", methods={"GET"})
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns the list of users",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class, groups={"user:list"}))
+     *     )
+     * )
      */
     public function showAll(Request $request, UserRepository $userRepository, SerializerInterface $serializer): Response
     {
@@ -63,6 +74,15 @@ class ApiUserController extends AbstractController
 
     /**
      * @Route("/api/user/{id}", name="api_show_user", methods={"GET"})
+     *  @OA\Response(
+     *     response=200,
+     *     description="Return an user by id",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class, groups={"user:single"}))
+     *     )
+     * )
+
      */
     public function showClient(int $id, UserRepository $userRepository, SerializerInterface $serializer): Response
     {
@@ -87,6 +107,14 @@ class ApiUserController extends AbstractController
 
     /**
      * @Route("/api/user/{id}", name="api_delete_user", methods={"DELETE"})
+     * @OA\Response(
+     *     response=200,
+     *     description="Delete an user by id",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class, groups={"user:delete"}))
+     *     )
+     * )
      */
     public function deleteUser(int $id, ManagerRegistry $doctrine, UserRepository $userRepository, SerializerInterface $serializer): Response
     {        
@@ -120,6 +148,14 @@ class ApiUserController extends AbstractController
 
     /**
      * @Route("/api/user", name="api_add_user", methods={"POST"})
+     * @OA\Response(
+     *     response=201,
+     *     description="Add an user",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=User::class))
+     *     )
+     * )
      */
     public function addUser(Request $request, SerializerInterface $serializer, ShopRepository $shopRepository, EntityManagerInterface $entityManagerInterface, UserPasswordHasherInterface $passwordHasher, UserRepository $userRepository): Response
     {
