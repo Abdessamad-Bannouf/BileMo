@@ -6,6 +6,9 @@ use App\Entity\Smartphone;
 use App\Repository\SmartphoneRepository;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -17,6 +20,15 @@ class ApiSmartphoneController extends AbstractController
 {
     /**
      * @Route("/api/smartphone", name="api_index_smartphone", methods={"GET"})
+     * @OA\Response(
+     *     response=200,
+     *     description="Returns the list of smartphones",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Smartphone::class, groups={"smartphone:list"}))
+     *     )
+     * )
+
      */
     public function showAll(Request $request, SmartphoneRepository $smartphoneRepository, SerializerInterface $serializer): Response
     {
@@ -55,6 +67,14 @@ class ApiSmartphoneController extends AbstractController
 
     /**
      * @Route("/api/smartphone/{id}", name="api_show_smartphone", methods={"GET"})
+     *  @OA\Response(
+     *     response=200,
+     *     description="Returns a smartphone by id",
+     *     @OA\JsonContent(
+     *        type="array",
+     *        @OA\Items(ref=@Model(type=Smartphone::class, groups={"smartphone:single"}))
+     *     )
+     * )
      */
     public function showProduct(int $id, SmartphoneRepository $smartphoneRepository, SerializerInterface $serializer): Response
     {
