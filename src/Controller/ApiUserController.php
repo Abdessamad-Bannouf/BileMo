@@ -5,27 +5,36 @@ namespace App\Controller;
 use App\Entity\Shop;
 use App\Entity\User;
 use App\Form\UserType;
-use App\Repository\ShopRepository;
 use App\Repository\UserRepository;
-use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
-use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
-use JMS\Serializer\SerializerBuilder;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 class ApiUserController extends AbstractController
 {
+    private $request;
+    private $userRepository;
+    private $serializer;
+    private $managerRegistry;
+
+    public function __construct(RequestStack $requestStack, UserRepository $userRepository, SerializerInterface $serializer, ManagerRegistry $managerRegistry)
+    {
+        $this->request = $requestStack->getCurrentRequest();
+        $this->userRepository = $userRepository;
+        $this->serializer = $serializer;
+        $this->managerRegistry = $managerRegistry;
+    }
+
     /**
      * @Route("/api/user", name="api_index_user", methods={"GET"})
      * @OA\Response(
@@ -37,15 +46,15 @@ class ApiUserController extends AbstractController
      *     )
      * )
      */
-    public function showAll(Request $request, UserRepository $userRepository, SerializerInterface $serializer): Response
+    public function showAll(): Response
     {
-        $users = $userRepository->findAll();
+        $users = $this->userRepository->findAll();
 
         $adapter = new ArrayAdapter($users);
         $pagerfanta = new Pagerfanta($adapter);
 
         // Get the actual page in url (default: 1)
-        $actualPage = $request->query->get('page') ? $request->query->get('page'): 1;
+        $actualPage = $this->request->query->get('page') ? $this->request->query->get('page'): 1;
 
         $limit = 5;
 
@@ -63,7 +72,7 @@ class ApiUserController extends AbstractController
 
         $currentPageResults = $pagerfanta->getCurrentPageResults();
 
-        $json = $serializer->serialize($currentPageResults, 'json', SerializationContext::create()->setGroups(array('user:list')));
+        $json = $this->serializer->serialize($currentPageResults, 'json', SerializationContext::create()->setGroups(array('user:list')));
 
         $response = new Response($json, 200, [
             "Content-Type' => 'application/json"
@@ -84,11 +93,11 @@ class ApiUserController extends AbstractController
      * )
 
      */
-    public function showClient(int $id, UserRepository $userRepository, SerializerInterface $serializer): Response
+    public function showClient(int $id): Response
     {
-        $user = $userRepository->findBy(['id' => $id]);
+        $user = $this->userRepository->findBy(['id' => $id]);
         
-        $json = $serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('user:single')));
+        $json = $this->serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('user:single')));
 
         if(! $user) {
             $response = new Response('Utilisateur non trouvé', 404, [
@@ -116,15 +125,15 @@ class ApiUserController extends AbstractController
      *     )
      * )
      */
-    public function deleteUser(int $id, ManagerRegistry $doctrine, UserRepository $userRepository, SerializerInterface $serializer): Response
+    public function deleteUser(int $id): Response
     {        
         // Recherche un utilisateur uniquement sur son id
-        $user = $userRepository->findOneBy(['id' => $id]);
+        $user = $this->userRepository->findOneBy(['id' => $id]);
 
         //Si l'utilisateur existe, on le supprime
         if($user) {
-            $json = $serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('user:delete')));
-            $entityManager = $doctrine->getManager();
+            $json = $this->serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('user:delete')));
+            $entityManager = $this->managerRegistry->getManager();
             
             $entityManager->remove($user);
             $entityManager->flush();
@@ -157,7 +166,7 @@ class ApiUserController extends AbstractController
      *     )
      * )
      */
-    public function addUser(Request $request, SerializerInterface $serializer, ShopRepository $shopRepository, EntityManagerInterface $entityManagerInterface, UserPasswordHasherInterface $passwordHasher, UserRepository $userRepository): Response
+    public function addUser(Request $request, UserPasswordHasherInterface $passwordHasher): Response
     {
         // On récupère le json envoyé au back 
         $data = json_decode($request->getContent(), true);
@@ -177,7 +186,7 @@ class ApiUserController extends AbstractController
         $user->setPassword($hashedPassword);
 
         // On recherche un utilisateur par mail (id unique)
-        $checkUser = $userRepository->findByEmail(['email' => $user->getEmail()]);
+        $checkUser = $this->userRepository->findByEmail(['email' => $user->getEmail()]);
         
         // Si l'on trouve un resultat, on renvoie un message disant que l'utilisateur existe 
         // et on retourne une réponse 
@@ -190,10 +199,12 @@ class ApiUserController extends AbstractController
         }
 
         // On persist l'user
-        $entityManagerInterface->persist($user);
-        $entityManagerInterface->flush();
+        $entityManager = $this->managerRegistry->getManager();
 
-        $json = $serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('user:single')));
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        $json = $this->serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('user:single')));
 
         $response = new Response($json, 201, [
             "Content-Type' => 'application/json"

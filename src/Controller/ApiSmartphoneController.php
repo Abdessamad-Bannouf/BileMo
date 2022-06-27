@@ -7,17 +7,27 @@ use App\Repository\SmartphoneRepository;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
 use Pagerfanta\Adapter\ArrayAdapter;
 use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ApiSmartphoneController extends AbstractController
 {
+    private $request;
+    private $smartphoneRepository;
+    private $serializer;
+
+    public function __construct(RequestStack $requestStack, SmartphoneRepository $smartphoneRepository, SerializerInterface $serializer)
+    {
+        $this->request = $requestStack->getCurrentRequest();
+        $this->smartphoneRepository = $smartphoneRepository;
+        $this->serializer = $serializer;
+    }
+
     /**
      * @Route("/api/smartphone", name="api_index_smartphone", methods={"GET"})
      * @OA\Response(
@@ -30,15 +40,15 @@ class ApiSmartphoneController extends AbstractController
      * )
 
      */
-    public function showAll(Request $request, SmartphoneRepository $smartphoneRepository, SerializerInterface $serializer): Response
+    public function showAll(): Response
     {
-        $smartphones = $smartphoneRepository->findAll();
+        $smartphones = $this->smartphoneRepository->findAll();
 
         $adapter = new ArrayAdapter($smartphones);
         $pagerfanta = new Pagerfanta($adapter);
 
         // Get the actual page in url (default: 1)
-        $actualPage = $request->query->get('page') ? $request->query->get('page'): 1;
+        $actualPage = $this->request->query->get('page') ? $this->request->query->get('page'): 1;
 
         $limit = 5;
 
@@ -56,7 +66,7 @@ class ApiSmartphoneController extends AbstractController
 
         $currentPageResults = $pagerfanta->getCurrentPageResults();
 
-        $json = $serializer->serialize($currentPageResults, 'json', SerializationContext::create()->setGroups(array('smartphone:list')));
+        $json = $this->serializer->serialize($currentPageResults, 'json', SerializationContext::create()->setGroups(array('smartphone:list')));
 
         $response = new Response($json, 200, [
             "Content-Type' => 'application/json"
@@ -76,11 +86,11 @@ class ApiSmartphoneController extends AbstractController
      *     )
      * )
      */
-    public function showProduct(int $id, SmartphoneRepository $smartphoneRepository, SerializerInterface $serializer): Response
+    public function showProduct(int $id): Response
     {
-        $smartphone = $smartphoneRepository->findBy(['id' => $id]);
+        $smartphone = $this->smartphoneRepository->findBy(['id' => $id]);
 
-        $json = $serializer->serialize($smartphone, 'json', SerializationContext::create()->setGroups(array('smartphone:single')));
+        $json = $this->serializer->serialize($smartphone, 'json', SerializationContext::create()->setGroups(array('smartphone:single')));
 
         if(! $smartphone) {
             $response = new Response('Smartphone non trouvé', 404, [
