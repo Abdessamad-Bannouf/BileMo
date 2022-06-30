@@ -14,10 +14,10 @@ use JMS\Serializer\Annotation as Serializer;
  *      "self",
  *      href = @Hateoas\Route(
  *          "api_show_smartphone",
- *          parameters = {
- *              "id" = "expr(object.getId())"
- *          }
- *      )
+ *          parameters = { "id" = "expr(object.getId())" },
+ *          absolute = true
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups={"smartphone:list"})
  * )
  */
 class Smartphone
