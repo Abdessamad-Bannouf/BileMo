@@ -2,20 +2,20 @@
 
 namespace App\Controller;
 
-use App\Entity\Shop;
 use App\Entity\User;
 use App\Form\UserType;
 use App\Repository\UserRepository;
+use App\Service\PaginationService;
 use Doctrine\Persistence\ManagerRegistry;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
+use JsonException;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
-use Pagerfanta\Adapter\ArrayAdapter;
-use Pagerfanta\Pagerfanta;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
@@ -46,37 +46,11 @@ class ApiUserController extends AbstractController
      *     )
      * )
      */
-    public function showAll(): Response
+    public function showAll(PaginationService $paginationService): Response
     {
         $users = $this->userRepository->findAll();
 
-        $adapter = new ArrayAdapter($users);
-        $pagerfanta = new Pagerfanta($adapter);
-
-        // Get the actual page in url (default: 1)
-        $actualPage = $this->request->query->get('page') ? $this->request->query->get('page'): 1;
-
-        $limit = 5;
-
-        // Check if the actual page is superior to users count
-        if($limit * $actualPage > count($users)) {
-            $response = new Response('Paramètres de pages incorrect', 404, [
-                "Content-Type' => 'application/json"
-            ]);
-
-            return $response;
-        }
-
-        $pagerfanta->setMaxPerPage($limit); // 5 items per page
-        $pagerfanta->setCurrentPage($actualPage); // 1 by default
-
-        $currentPageResults = $pagerfanta->getCurrentPageResults();
-
-        $json = $this->serializer->serialize($currentPageResults, 'json', SerializationContext::create()->setGroups(array('user:list')));
-
-        $response = new Response($json, 200, [
-            "Content-Type' => 'application/json"
-        ]);
+        $response = $paginationService->getPagination($users, 5, 'user:list');
         
         return $response;
     }
@@ -91,11 +65,17 @@ class ApiUserController extends AbstractController
      *        @OA\Items(ref=@Model(type=User::class, groups={"user:single"}))
      *     )
      * )
-
      */
-    public function showClient(int $id): Response
+    public function showClient(User $user = null): Response
     {
-        $user = $this->userRepository->findBy(['id' => $id]);
+        $this->checkUser($user);
+
+        // if user can't be seen by the current user
+        if (!$this->isGranted("SEE", $user)) {
+            throw new JsonException("Vous n'avez pas les droits requis pour faire cette requête", JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $user = $this->userRepository->findBy(['id' => $user]);
         
         $json = $this->serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('user:single')));
 
@@ -125,10 +105,16 @@ class ApiUserController extends AbstractController
      *     )
      * )
      */
-    public function deleteUser(int $id): Response
+    public function deleteUser(User $user = null): Response
     {        
+        $this->checkUser($user);
+        
+        if (!$this->isGranted("REMOVE", $user)) {
+            throw new JsonException("Vous n'avez pas les droits requis pour faire cette requête", JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
         // Recherche un utilisateur uniquement sur son id
-        $user = $this->userRepository->findOneBy(['id' => $id]);
+        $user = $this->userRepository->findOneBy(['id' => $user]);
 
         //Si l'utilisateur existe, on le supprime
         if($user) {
@@ -166,24 +152,18 @@ class ApiUserController extends AbstractController
      *     )
      * )
      */
-    public function addUser(Request $request, UserPasswordHasherInterface $passwordHasher): Response
+    public function addUser(Request $request): Response
     {
+        if (!$this->isGranted("ADD", $this->getUser())) {
+            throw new JsonException("Vous n'avez pas les droits requis pour faire cette requête", JsonResponse::HTTP_UNAUTHORIZED);
+        }
+        
         // On récupère le json envoyé au back 
         $data = json_decode($request->getContent(), true);
         $user = new User();
         
         $form = $this->createForm(UserType::class, $user);
         $form->submit($data);
-
-        // On récupère le password brut, on hash le password et on le set
-        $plaintextPassword = $user->getPassword(); 
-
-        $hashedPassword = $passwordHasher->hashPassword(
-            $user,
-            $plaintextPassword
-        );
-        
-        $user->setPassword($hashedPassword);
 
         // On recherche un utilisateur par mail (id unique)
         $checkUser = $this->userRepository->findByEmail(['email' => $user->getEmail()]);
@@ -211,5 +191,13 @@ class ApiUserController extends AbstractController
         ]);
 
         return $response;
+    }
+
+    protected function checkUser($user)
+    {
+        // Si l'utilisateur n'est pas trouvé
+        if (!$user || !($user instanceof User)) {
+            throw new JsonException("Identifiant incorrect ou bien l'utilisateur n'est pas trouvé", JsonResponse::HTTP_NOT_FOUND);
+        }
     }
 }
