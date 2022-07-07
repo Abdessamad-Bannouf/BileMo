@@ -4,12 +4,11 @@ namespace App\Controller;
 
 use App\Entity\Smartphone;
 use App\Repository\SmartphoneRepository;
+use App\Service\PaginationService;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
-use Pagerfanta\Adapter\ArrayAdapter;
-use Pagerfanta\Pagerfanta;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,37 +39,11 @@ class ApiSmartphoneController extends AbstractController
      * )
 
      */
-    public function showAll(): Response
+    public function showAll(PaginationService $paginationService): Response
     {
         $smartphones = $this->smartphoneRepository->findAll();
 
-        $adapter = new ArrayAdapter($smartphones);
-        $pagerfanta = new Pagerfanta($adapter);
-
-        // Get the actual page in url (default: 1)
-        $actualPage = $this->request->query->get('page') ? $this->request->query->get('page'): 1;
-
-        $limit = 5;
-
-        // Check if the actual page is superior to smartphones count
-        if($limit * $actualPage > count($smartphones)) {
-            $response = new Response('Paramètres de pages incorrect', 404, [
-                "Content-Type' => 'application/json"
-            ]);
-
-            return $response;
-        }
-
-        $pagerfanta->setMaxPerPage($limit); // 5 items per page
-        $pagerfanta->setCurrentPage($actualPage); // 1 by default
-
-        $currentPageResults = $pagerfanta->getCurrentPageResults();
-
-        $json = $this->serializer->serialize($currentPageResults, 'json', SerializationContext::create()->setGroups(array('smartphone:list')));
-
-        $response = new Response($json, 200, [
-            "Content-Type' => 'application/json"
-        ]);
+        $response = $paginationService->getPagination($smartphones, 5, 'smartphone:list');
         
         return $response;
     }

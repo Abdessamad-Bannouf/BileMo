@@ -2,9 +2,8 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Shop;
+use App\Entity\Customer;
 use App\Entity\Smartphone;
-use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
@@ -12,11 +11,12 @@ use Faker\Provider\Color;
 use Faker\Factory;
 use Faker\Generator;
 use Faker\Provider\Internet;
+use Symfony\Component\Security\Core\Encoder\EncoderFactoryInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class ShopFixtures extends Fixture
+class CustomerFixtures extends Fixture
 {
-    public const SHOP_USER_REFERENCE = 'shop-user';
+    public const CUSTOMER_USER_REFERENCE = 'customer-user';
     
     public function __construct(UserPasswordEncoderInterface $encoder)
     {
@@ -30,17 +30,17 @@ class ShopFixtures extends Fixture
 
         $faker = Factory::create('fr_FR');
 
-        // Créer 3 shops
+        // Créer 3 customers
         for ($i=0; $i<3; $i++)
         {
-            $shop = new Shop;
+            $customer = new Customer;
 
-            $shop->setName($faker->name)
+            $customer->setName($faker->name)
                 ->setUrl($faker->url);
 
-            $manager->persist($shop);
+            $manager->persist($customer);
 
-            $this->addReference(self::SHOP_USER_REFERENCE . '_' . $i, $shop);
+            $this->addReference(self::CUSTOMER_USER_REFERENCE . '_' . $i, $customer);
         }
         
 

@@ -25,10 +25,10 @@ use Symfony\Component\Security\Core\User\UserInterface;
  *     exclusion = @Hateoas\Exclusion(groups={"user:single", "user:list"})
  * )
  *  @Hateoas\Relation(
- *     name = "shops",
+ *     name = "customer",
  *     embedded = @Hateoas\Embedded(
- *         "expr(object.getShops())",
- *         exclusion = @Hateoas\Exclusion(groups={"user:list", "user:single", "shop:single"})
+ *         "expr(object.getCustomer())",
+ *         exclusion = @Hateoas\Exclusion(groups={"user:list", "user:single", "customer:single"})
  *     )
  * )
  *     
@@ -41,14 +41,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      * @Serializer\Expose
-     * @Serializer\Groups({"user:single", "user:list", "shop:list", "shop:single", "user:delete"})
+     * @Serializer\Groups({"user:single", "user:list", "customer:list", "customer:single", "user:delete"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Serializer\Expose
-     * @Serializer\Groups({"user:single", "user:list", "shop:list", "user:delete", "shop:single"})
+     * @Serializer\Groups({"user:single", "user:list", "customer:list", "user:delete", "customer:single"})
      * @Type("string")
      */
     private $email;
@@ -56,7 +56,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="json")
      * @Serializer\Expose
-     * @Serializer\Groups({"user:single", "user:list", "shop:list", "user:delete", "shop:single"})
+     * @Serializer\Groups({"user:single", "user:list", "customer:list", "user:delete", "customer:single"})
      * @Type("array")
      */
     private $roles = [];
@@ -72,7 +72,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="string", length=50)
      * @Serializer\Expose
-     * @Serializer\Groups({"user:single", "user:list", "shop:list", "user:delete", "shop:single"})
+     * @Serializer\Groups({"user:single", "user:list", "customer:list", "user:delete", "customer:single"})
      * @Type("string")
      */
     private $firstname;
@@ -80,7 +80,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="string", length=50)
      * @Serializer\Expose
-     * @Serializer\Groups({"user:single", "user:list", "shop:list", "user:delete", "shop:single"})
+     * @Serializer\Groups({"user:single", "user:list", "customer:list", "user:delete", "customer:single"})
      * @Type("string")
      */
     private $lastname;
@@ -88,23 +88,17 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @ORM\Column(type="string", length=50)
      * @Serializer\Expose
-     * @Serializer\Groups({"user:single", "user:list", "shop:list", "user:delete", "shop:single"})
+     * @Serializer\Groups({"user:single", "user:list", "customer:list", "user:delete", "customer:single"})
      * @Type("string")
      */
     private $username;
 
     /**
-     * @ORM\ManyToMany(targetEntity=Shop::class, mappedBy="users", orphanRemoval=true, cascade={"persist"})
+     * @ORM\ManyToOne(targetEntity=Customer::class, inversedBy="users", cascade={"persist"})
      * @Serializer\Groups({"user:single", "user:delete"})
      * @Serializer\Expose
-     * @Type("ArrayCollection")
      */
-    public $shops;
-
-    public function __construct()
-    {
-        $this->shops = new ArrayCollection();
-    }
+    public $customer;
 
     public function getId(): ?int
     {
@@ -226,30 +220,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    /**
-     * @return Collection<int, Shop>
-     */
-    public function getShops(): Collection
+    public function getCustomer(): ?Customer
     {
-        return $this->shops;
+        return $this->customer;
     }
 
-    public function addShop(Shop $shop): self
+    public function setCustomer(?Customer $customer): self
     {
-        
-        if (!$this->shops->contains($shop)) {
-            $this->shops[] = $shop;
-            $shop->addUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeShop(Shop $shop): self
-    {
-        if ($this->shops->removeElement($shop)) {
-            $shop->removeUser($this);
-        }
+        $this->customer = $customer;
 
         return $this;
     }

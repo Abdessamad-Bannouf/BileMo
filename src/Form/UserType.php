@@ -2,7 +2,7 @@
 
 namespace App\Form;
 
-use App\Entity\Shop;
+use App\Entity\Customer;
 use App\Entity\User;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
@@ -23,9 +23,9 @@ class UserType extends AbstractType
             ->add('firstname', TextType::class)
             ->add('lastname', TextType::class)
             ->add('username', TextType::class)
-            ->add('shops', EntityType::class, [
-                'class' => Shop::class,
-                'multiple' => true,
+            ->add('customer', EntityType::class, [
+                'class' => Customer::class,
+                'multiple' => false,
                 'by_reference' => false,
             ])
         ;

@@ -2,25 +2,25 @@
 
 namespace App\Repository;
 
-use App\Entity\Shop;
+use App\Entity\Customer;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @method Shop|null find($id, $lockMode = null, $lockVersion = null)
- * @method Shop|null findOneBy(array $criteria, array $orderBy = null)
- * @method Shop[]    findAll()
- * @method Shop[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
+ * @method Customer|null find($id, $lockMode = null, $lockVersion = null)
+ * @method Customer|null findOneBy(array $criteria, array $orderBy = null)
+ * @method Customer[]    findAll()
+ * @method Customer[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class ShopRepository extends ServiceEntityRepository
+class CustomerRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Shop::class);
+        parent::__construct($registry, Customer::class);
     }
 
     // /**
-    //  * @return Shop[] Returns an array of Shop objects
+    //  * @return Customer[] Returns an array of Customer objects
     //  */
     /*
     public function findByExampleField($value)
@@ -37,7 +37,7 @@ class ShopRepository extends ServiceEntityRepository
     */
 
     /*
-    public function findOneBySomeField($value): ?Shop
+    public function findOneBySomeField($value): ?Customer
     {
         return $this->createQueryBuilder('s')
             ->andWhere('s.exampleField = :val')
