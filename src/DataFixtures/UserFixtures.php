@@ -3,7 +3,7 @@
 namespace App\DataFixtures;
 
 use App\DataFixtures\ShopFixtures;
-use App\Entity\Shop;
+use App\Entity\Customer;
 use App\Entity\Smartphone;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -16,7 +16,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserFixtures extends Fixture
 {
-    private const SHOP_USER_REFERENCE = 'shop-user';
+    private const CUSTOMER_USER_REFERENCE = 'customer-user';
     
     public function __construct(UserPasswordEncoderInterface $encoder)
     {
@@ -29,7 +29,7 @@ class UserFixtures extends Fixture
         // $manager->persist($product);
 
         $faker = Factory::create('fr_FR');
-      
+
         // Créer 30 utilisateurs
         for ($j=0; $j<30; $j++)
         {
@@ -41,7 +41,7 @@ class UserFixtures extends Fixture
                 ->setEmail($faker->email)
                 ->setPassword($this->encoder->encodePassword($user, 'password'))
                 ->setRoles($user->getRoles())
-                ->addShop($this->getReference(ShopFixtures::SHOP_USER_REFERENCE . '_'. mt_rand(0,2)));
+                ->setCustomer($this->getReference(CustomerFixtures::CUSTOMER_USER_REFERENCE . '_'. mt_rand(0,2)));
 
             $manager->persist($user);
         }
