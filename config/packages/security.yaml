@@ -9,9 +9,9 @@ security:
     # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
     providers:
         # used to reload user from session & other features (e.g. switch_user)
-        app_user_provider:
+        app_customer_provider:
             entity:
-                class: App\Entity\User
+                class: App\Entity\Customer
                 property: username
     firewalls:
         dev:
@@ -31,7 +31,7 @@ security:
             jwt: ~
         main:
             lazy: true
-            provider: app_user_provider
+            provider: app_customer_provider
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
