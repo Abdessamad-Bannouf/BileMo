@@ -16,8 +16,6 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserFixtures extends Fixture
 {
-    private const CUSTOMER_USER_REFERENCE = 'customer-user';
-    
     public function __construct(UserPasswordEncoderInterface $encoder)
     {
         $this->encoder = $encoder;
@@ -37,11 +35,8 @@ class UserFixtures extends Fixture
 
             $user->setFirstname($faker->firstName)
                 ->setLastname($faker->lastName)
-                ->setUsername($faker->userName)
                 ->setEmail($faker->email)
-                ->setPassword($this->encoder->encodePassword($user, 'password'))
-                ->setRoles($user->getRoles())
-                ->setCustomer($this->getReference(CustomerFixtures::CUSTOMER_USER_REFERENCE . '_'. mt_rand(0,2)));
+                ->setCustomer($this->getReference(CustomerFixtures::CUSTOMER_USER_REFERENCE . '_'. mt_rand(0,19)));
 
             $manager->persist($user);
         }

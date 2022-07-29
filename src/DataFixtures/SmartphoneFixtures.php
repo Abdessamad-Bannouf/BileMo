@@ -15,8 +15,6 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class SmartphoneFixtures extends Fixture
 {
-    private const SHOP_USER_REFERENCE = 'shop-user';
-    
     public function __construct(UserPasswordEncoderInterface $encoder)
     {
         $this->encoder = $encoder;
@@ -30,8 +28,8 @@ class SmartphoneFixtures extends Fixture
         $faker = Factory::create('fr_FR');
         $description = join($faker->paragraphs(1));
 
-        // Ajoute 10 smartphones
-        for ($i=0; $i<10; $i++)
+        // Ajoute 50 smartphones
+        for ($i=0; $i<50; $i++)
         {
             $smartphone = new Smartphone;
 
@@ -39,7 +37,8 @@ class SmartphoneFixtures extends Fixture
                 ->setDescription($description)
                 ->setColor($faker->colorName)
                 ->setPrice($faker->randomNumber(4))
-                ->setYear($faker->dateTimeBetween('2022-01-01', 'now'));
+                ->setYear($faker->dateTimeBetween('2022-01-01', 'now'))
+                ->addCustomer($this->getReference(CustomerFixtures::CUSTOMER_SMARTPHONE_REFERENCE . '_'. mt_rand(0,19)));
                 
             $manager->persist($smartphone);
         }
