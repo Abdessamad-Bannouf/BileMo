@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\UserRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
 use JMS\Serializer\Annotation as Serializer;
@@ -38,14 +36,14 @@ class User
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
      * @Serializer\Expose
-     * @Serializer\Groups({"user:single", "user:list", "customer:list", "customer:single"})
+     * @Serializer\Groups({"user:single", "user:list", "customer:list", "customer:single", "user:delete"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
      * @Serializer\Expose
-     * @Serializer\Groups({"user:single", "user:list", "customer:list", "customer:single"})
+     * @Serializer\Groups({"user:single", "user:list", "customer:list", "customer:single", "user:delete"})
      * @Type("string")
      */
     private $email;
@@ -53,7 +51,7 @@ class User
     /**
      * @ORM\Column(type="string", length=50)
      * @Serializer\Expose
-     * @Serializer\Groups({"user:single", "user:list", "customer:list", "customer:single"})
+     * @Serializer\Groups({"user:single", "user:list", "customer:list", "customer:single", "user:delete"})
      * @Type("string")
      */
     private $firstname;
@@ -61,7 +59,7 @@ class User
     /**
      * @ORM\Column(type="string", length=50)
      * @Serializer\Expose
-     * @Serializer\Groups({"user:single", "user:list", "customer:list", "customer:single"})
+     * @Serializer\Groups({"user:single", "user:list", "customer:list", "customer:single", "user:delete"})
      * @Type("string")
      */
     private $lastname;

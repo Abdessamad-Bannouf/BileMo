@@ -33,7 +33,7 @@ class ApiCustomerController extends AbstractController
     }
 
     /**
-     * @Route("/api/customer/{id}/user", name="api_index_user_customer", methods={"GET"})
+     * @Route("/api/customers/{id}/users", name="api_index_user_customer", methods={"GET"})
      *  @OA\Response(
      *     response=200,
      *     description="Returns all users of a specific customer",
@@ -65,7 +65,7 @@ class ApiCustomerController extends AbstractController
     }
 
     /**
-     * @Route("/api/customer", name="api_add_customer", methods={"POST"})
+     * @Route("/api/customers", name="api_add_customer", methods={"POST"})
      * @OA\Response(
      *     response=201,
      *     description="Add an customer",
@@ -97,10 +97,10 @@ class ApiCustomerController extends AbstractController
         $customer->setPassword($hashedPassword);
 
         // On persist le customer
-        $entityManager = $this->em->getManager();
+        $em = $this->em->getManager();
 
-        $entityManager->persist($customer);
-        $entityManager->flush();
+        $em->persist($customer);
+        $em->flush();
 
         $json = $this->serializer->serialize($customer, 'json', SerializationContext::create()->setGroups(array('customer:add')));
 
