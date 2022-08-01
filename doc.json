@@ -1,0 +1,105 @@
+	
+openapi	"3.0.0"
+info	
+title	"Bilemo"
+description	"This is an application who reference the smartphones & client/user data's"
+version	"1.0.0"
+paths	
+/api/customer/{id}/user	
+get	
+operationId	"get_api_index_user_customer"
+parameters	
+0	
+name	"id"
+in	"path"
+required	true
+schema	
+type	"string"
+responses	
+200	
+description	"Returns all users of a specific customer"
+content	
+application/json	
+schema	{…}
+/api/customer	
+post	
+operationId	"post_api_add_customer"
+responses	
+201	
+description	"Add an customer"
+content	
+application/json	
+schema	{…}
+/api/customer/{id}	
+delete	
+operationId	"delete_api_delete_customer"
+parameters	
+0	
+name	"id"
+in	"path"
+required	true
+schema	
+type	"string"
+responses	
+200	
+description	"Delete an customer by id"
+content	
+application/json	
+schema	{…}
+/api/smartphone	
+get	
+operationId	"get_api_index_smartphone"
+responses	
+200	
+description	"Returns the list of smartphones"
+content	
+application/json	
+schema	{…}
+/api/smartphone/{id}	
+get	
+operationId	"get_api_show_smartphone"
+parameters	
+0	
+name	"id"
+in	"path"
+required	true
+schema	
+type	"string"
+responses	
+200	
+description	"Returns a smartphone by id"
+content	
+application/json	
+schema	{…}
+/api/user	
+get	
+operationId	"get_api_index_user"
+responses	
+200	
+description	"Returns the list of users"
+content	
+application/json	
+schema	{…}
+/api/user/{id}	
+get	
+operationId	"get_api_show_user"
+parameters	
+0	
+name	"id"
+in	"path"
+required	true
+schema	
+type	"string"
+responses	
+200	
+description	"Return an user by id"
+content	
+application/json	
+schema	{…}
+/api/doc.json	
+get	
+responses	
+default	
+description	""
+components	
+schemas	{…}
