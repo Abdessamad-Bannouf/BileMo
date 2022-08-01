@@ -35,7 +35,7 @@ class ValidationService
         }
 
         // On recherche un customer par username (unique)
-        $checkCustomer = $this->customerRepository->findByUsername(['username' => $entity->getUsername()]);
+        $checkCustomer = $this->customerRepository->findByUsername(['id' => $entity->getId()]);
 
         // Si l'on trouve un resultat, on renvoie un message disant que le customer existe 
         // et on retourne une réponse 

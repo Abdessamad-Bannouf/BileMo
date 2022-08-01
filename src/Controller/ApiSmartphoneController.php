@@ -28,7 +28,7 @@ class ApiSmartphoneController extends AbstractController
     }
 
     /**
-     * @Route("/api/smartphone", name="api_index_smartphone", methods={"GET"})
+     * @Route("/api/smartphones", name="api_index_smartphone", methods={"GET"})
      * @OA\Response(
      *     response=200,
      *     description="Returns the list of smartphones",
@@ -49,7 +49,7 @@ class ApiSmartphoneController extends AbstractController
     }
 
     /**
-     * @Route("/api/smartphone/{id}", name="api_show_smartphone", methods={"GET"})
+     * @Route("/api/smartphones/{id}", name="api_show_smartphone", methods={"GET"})
      *  @OA\Response(
      *     response=200,
      *     description="Returns a smartphone by id",
