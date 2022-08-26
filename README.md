@@ -3,7 +3,7 @@
 
 # Installation du projet :  
   
-    ● Cloner le projet : git clone https://github.com/Abdessamad-Bannouf/SnowTricks.git
+    ● Cloner le projet : git clone https://github.com/Abdessamad-Bannouf/BileMo.git
     
     ● Installer le gestionnaire de dépendance : composer  
         
