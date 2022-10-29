@@ -69,7 +69,7 @@ class ApiUserController extends AbstractController
      *     )
      * )
      */
-    public function showClient(Customer $customer, User $user = null): Response
+    public function showClient(Customer $customer = null, User $user = null): Response
     {
         $this->checkUser($user);
 
@@ -79,7 +79,7 @@ class ApiUserController extends AbstractController
         }*/
 
         $user = $this->userRepository->findBy(['id' => $user, 'customer' => $customer]);
-        
+
         $json = $this->serializer->serialize($user, 'json', SerializationContext::create()->setGroups(array('user:single')));
 
         if(! $user) {

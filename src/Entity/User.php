@@ -16,7 +16,7 @@ use Symfony\Component\Validator\Constraints as Assert;
  *     name = "self",
  *     href = @Hateoas\Route(
  *         "api_show_user",
- *         parameters = { "id" = "expr(object.getId())" },
+ *         parameters = { "id" = "expr(object.getId())", "customer_id" = "expr(object.getId())" },
  *         absolute = true
  *     ),
  *     exclusion = @Hateoas\Exclusion(groups={"user:single", "user:list"})
